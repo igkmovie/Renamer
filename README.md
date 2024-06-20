@@ -55,6 +55,6 @@ OldName,NewName
 4. `StartRename` ボタンをクリックして、CSVファイルに指定された通りにボーンやシェイプキーの名前を変更します。
 
 # サンプルCSV
-MMD_Vroid.csv　PMXの標準ボーンと一般的なモーフをVroid形式のボーン名に変更するもの
-MMD_Vroid[.L][.R].csv　MMDToolsでインポートしたPMXをVroid形式のボーン名に変更するもの
-MMD_blender.csv　MMDTools以外で読み込んだPMXのボーン名をミラーにする
+- MMD_Vroid.csv　PMXの標準ボーンと一般的なモーフをVroid形式のボーン名に変更するもの
+- MMD_Vroid[.L][.R].csv　MMDToolsでインポートしたPMXをVroid形式のボーン名に変更するもの
+- MMD_blender.csv　MMDTools以外で読み込んだPMXのボーン名をミラーにする
