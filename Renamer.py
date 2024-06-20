@@ -1,19 +1,24 @@
 import bpy
 import logging
 from bpy.props import (
+    IntProperty,
+    FloatProperty,
+    FloatVectorProperty,
     EnumProperty,
+    BoolProperty,
+    PointerProperty,
     StringProperty
 )
 import csv
 
 
 bl_info = {
-    "name" : "ReNamer",
-    "author" : "ig_k",
-    "version" : (1, 0, 0),
-    "blender" : (2, 83, 0),
-    "location" : "hoge",
-    "description" : "hoge",
+    "name" : "ReNamer", #des アドオン名
+    "author" : "ig_k", #des 作者の名前
+    "version" : (1, 0, 0), #des バージョン数
+    "blender" : (2, 83, 0),#des 対応バージョン
+    "location" : "hoge", #des アドオンの場所(ショートカットやパネルの表示場所など)
+    "description" : "hoge", #des アドオンの解説
     "warning" : "",
     "wiki_url" : "",
     "tracker_url" : "",
@@ -21,10 +26,10 @@ bl_info = {
 }
 
 
-class ReNamerOnPushButton(bpy.types.Operator):
+class ReNamerOnPushButton(bpy.types.Operator, bpy.types.Panel):
    
     bl_idname = "object.renamer"
-    bl_label = "Start Rename"
+    bl_label = "NOP"
     bl_description = "処理スタート"
     bl_options = {'REGISTER', 'UNDO'}
 
@@ -38,16 +43,35 @@ class ReNamerOnPushButton(bpy.types.Operator):
         if(obj.type == "MESH"):
             shape_keys = obj.data.shape_keys.key_blocks
 
-        for old_name, new_name in namelist:
-            if(obj.type == "ARMATURE"):
-                pb = obj.pose.bones.get(old_name)
-                if pb is None:
-                    continue
-                pb.name = new_name
-            elif(obj.type == "MESH"):
-                for key in shape_keys:
-                    if(key.name == old_name):
-                        key.name = new_name               
+        if(bpy.context.scene.List_enum == "Left>Right"):
+            for leftName, RightName in namelist:
+                name = leftName
+                newname = RightName
+     
+                if(obj.type == "ARMATURE"):
+                    pb = obj.pose.bones.get(name)
+                    if pb is None:
+                        continue
+                    pb.name = newname
+                elif(obj.type == "MESH"):
+                    for key in shape_keys:
+                        if(key.name == name):
+                            key.name = newname               
+        else:
+            for leftName, RightName in namelist:
+                name = RightName
+                newname = leftName
+
+                if(obj.type == "ARMATURE"):
+                    pb = obj.pose.bones.get(name)
+                    if pb is None:
+                        continue
+                    pb.name = newname
+                elif(obj.type == "MESH"):
+                    for key in shape_keys:
+                        if(key.name == name):
+                            key.name = newname   
+                
 
         return{"FINISHED"}
 
@@ -72,9 +96,25 @@ class ReNamerCustomPanel(bpy.types.Panel):
         layout = self.layout
         scene = context.scene
 
+        # # ドロップダウンプロパティを追加
+        # layout.label(text="現在のArmature形式")
+        # layout.prop(scene, "Current_Armature_enum", text="Current_Armature")
+        
+        # # セパレータを追加
+        # layout.separator()
+
+        # # ドロップダウンプロパティを追加
+        # layout.label(text="変換するのArmature形式")
+        # layout.prop(scene, "Target_Armature_enum", text="Target_Armature")
+        
+        layout.label(text="List_enum")
+        layout.prop(scene, "List_enum", text="Target_List")
+
+        # セパレータを追加
+        layout.separator()
         layout.label(text="CSV_Path")
         layout.prop(scene, "CSV_Path", text="CSV_Path")
-
+        # セパレータを追加
         layout.separator()
 
         layout.label(text="ボタン:")
@@ -83,11 +123,45 @@ class ReNamerCustomPanel(bpy.types.Panel):
 
 def init_props():
     scene = bpy.types.Scene
+    # scene.Current_Armature_enum = EnumProperty(
+    #     name="Current_Armature",
+    #     description="Current_Armature_enum",
+    #     items=[
+    #         ('pmx', "pmx", "pmx"),
+    #         ('Vroid', "Vroid", "Vroid"),
+    #         ('AutoRigPro', "AutoRigPro", "AutoRigPro"),
+    #         ('UnityChan', "UnityChan", "UnityChan")
+    #     ],
+    #     default='Vroid'
+    # )
+    # scene.Target_Armature_enum = EnumProperty(
+    #     name="Target_Armature",
+    #     description="Target_Armature_enum",
+    #     items=[
+    #         ('pmx', "pmx", "pmx"),
+    #         ('Vroid', "Vroid", "Vroid"),
+    #         ('AutoRigPro', "AutoRigPro", "AutoRigPro"),
+    #         ('UnityChan', "UnityChan", "UnityChan")
+    #     ],
+    #     default='pmx'
+    # )
+    scene.List_enum = EnumProperty(
+        name="Target_List",
+        description="List_enum",
+        items=[
+            ('Left>Right', "Left>Right", "Left>Right"),
+            ('Right>Left', "Right>Left", "Right>Left")
+        ],
+        default='Left>Right'
+    )
     scene.CSV_Path = StringProperty(name="CSVFile", subtype="FILE_PATH")
 
 
 def clear_props():
     scene = bpy.types.Scene
+    # del scene.Target_Armature_enum
+    # del scene.Current_Armature_enum
+    del scene.List_enum
     del scene.CSV_Path
 
 
@@ -108,3 +182,5 @@ def unregister():
 
 if __name__ == "__main__":
     register()
+
+
